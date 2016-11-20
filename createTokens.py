@@ -11,117 +11,99 @@ import __init__
 import codecs
 import time
 
-"""def createFileUTF():
-	BLOCKSIZE=1048576
-	sourceFile=codecs.open("tweets.txt","r","latin-1")
-	targetFile=codecs.open("tweetsUTF","w","utf-8")
-	while True:
-		contents=sourceFile.read(BLOCKSIZE)
-		if not contents:
-			break
-		targetFile.write(contents)"""
 
 def strHasNum(myLine):
 	return any(c.isdigit() for c in myLine)
+	
+def removeUrl(line):
+	
+	word=line.split()
+	temp=word
+	for w in temp:
+		if w.startswith('https') or w.startswith('www') or w.startswith('http'):
+			word.remove(w)
+				
+	return ' '.join(word)
 
 def createContentList(fname):
 
 	contents=[]	
 	fh=codecs.open(fname,"r","latin-1")
-	lines=fh.readlines()
-	for line in lines:
+	wh=codecs.open("contentfile.txt","w","latin-1")
+	line=fh.readline()
+	while True:
+
 		if line.startswith("<http"):
 			line=line.split('>')
 			line=line[len(line)-1].split('@en')[0]
 
-			"""content=line.rsplit('\n')
-			contents.append(content)"""
-
 			contents.append(line)
+			wh.write(line+"\n")
+						
 		else:
-			line=line.split('http')
-			i=0
-			while i<len(line):
-				if line[i].find('s://')!=-1:
-					line.pop(i)
-				i+=1
-			line=' '.join(line)
-
-			"""content=line.rsplit('\n')
-			contents.append(content)"""
-
+			
+			line=removeUrl(line)			
 			contents.append(line)
-
-	"""while True:
+			wh.write(line+"\n")
 		line=fh.readline()
-		if line.startswith("<http"):
+		if line=='':
+			break
 			
-			line=line.split('>')
-			line=line[len(line)-1].split('@en')[0]
-			print line
-			contents.append(line)
-	
-		else:
-			
-			line=line.split('http')
-			i=0
-			while i<len(line):
-				if line[i].find('s://')!=-1:
-					line.pop(i)
-				i+=1
-			print ' '.join(line)
-			contents.append(' '.join(line))
-
-		if line=="":
-			break"""
-
 	fh.close()
+	wh.close()
 	return contents
+	
+
+def tokenizeFile(line,wordsList):
+	
+	for w in word_tokenize(line):
+	
+			if all(c in __init__.punctuation for c in w):
+				continue
+			elif strHasNum(w) or w.isdigit():
+				continue
+			elif any(c in __init__.punctuation for c in w):
+
+				word=list(w.lower())
+				temp=word
+									
+				for c in temp:
+					if c in __init__.punctuation:
+						word.remove(c)				
+				if len(word)>0:	
+					wordsList.append(''.join(word))
+			else:
+				wordsList.append(w.lower())
+				
+	return wordsList
 	
 def createTokensFromFile(fname):
 
 	fh=codecs.open(fname,"r","latin-1")
 	words=[]
+	line=fh.readline()
 	while True:
-		line=fh.readline()
+
 		if line.startswith("<http"):
-			
 			line=line.split('>')
 			line=line[len(line)-1].split('@en')[0]
+			
+			if line.find('http')!=-1 or line.find('www')!=-1 or line.find('https')!=-1:
+				line=removeUrl(line)
+			
+			words=tokenizeFile(line,words)
 	
-			tokens=word_tokenize(line)
-			for w in tokens:
-				w=w.lower()
-				if (w.find('\u')!=-1 or w.isdigit()==True):
-					continue
-				if w in __init__.stixis:
-					continue
-				if (strHasNum(w)==True):
-					continue
-				words.append(w)
 		else:
 			
-			line=line.split('http')
-			i=0
-			while i<len(line):
-				if line[i].find('s://')!=-1:
-					line.pop(i)
-				i+=1
-			line=' '.join(line)
-			tokens=word_tokenize(line)
-			for w in tokens:
-				w=w.lower()
-				if (w.find('\u')!=-1 or w.isdigit()==True):
-					continue
-				if w in __init__.stixis:
-					continue
-				if (strHasNum(w)==True):
-					continue
-				words.append(w)
-
-		if line=="":
+			if line.find('http')!=-1 or line.find('www')!=-1 or line.find('https')!=-1:
+				line=removeUrl(line)		
+			
+			words=tokenizeFile(line,words)
+		
+		line=fh.readline()
+		if line=='':
 			break
-
+			
 	fh.close()
 	return words
 
@@ -133,22 +115,14 @@ def createTokens(contents):
 
 	while i<len(contents):		
 		line=contents[i]		
-		tokens=word_tokenize(line)
-		for w in tokens:
-			w=w.lower()
-			if (w.find('\u')!=-1 or w.isdigit()==True):
-				continue
-			if w in __init__.stixis:
-				continue
-			if (strHasNum(w)==True):
-				continue
-			words.append(w)		
+		words=tokenizeFile(line,words)
+						
 		i+=1
 
 	return words
 
 
-def createDict(fname,words):
+"""def createDict(fname,words):
 
 	if words==None:
 		words=createTokensFromFile(fname)
@@ -168,11 +142,11 @@ def createDict(fname,words):
 		
 	prcFile.close()
 
-	return len(words)
+	return len(words)"""
 
 
 
-"""if __name__== '__main__':
+if __name__== '__main__':
 	
 	filename=raw_input("Give file name: ")
-	createFileTokens(filename)"""
+	createFileTokens(filename)
