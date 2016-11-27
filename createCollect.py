@@ -3,8 +3,7 @@
 
 from nltk import *
 import nltk.text
-"""from nltk.tokenize import word_tokenize
-from nltk.corpus import stop_words"""
+
 import __init__
 import random
 import codecs
@@ -14,7 +13,7 @@ import math
 import time
 
 
-def make_Collection(contentsList,number):
+def make_Collection(contentList,number):
 	
 	makeCollection=random.sample(contentList,number)
 		
@@ -63,23 +62,9 @@ def writeFileDict(Filename,wordDict):
 	fh.close()
 
 
-"""def make_Dictionary(collection,wordsList):
-	
-	wordsList=createTokens.createTokens(collection)
-	time.sleep(0.2)
-	
-	word_dict={}
-	for w in wordsList:
-		word_dict[w]=word_dict.get(w,0)+1
-	
-	for key,value in word_dict.items():
-		print key,value
-	
-	return word_dict,wordsList"""
+"""if __name__=='__main__':"""
 
-
-
-if __name__=='__main__':
+def menuCollection():
 		
 	while True:
 		print "1.create collection"
@@ -148,6 +133,7 @@ if __name__=='__main__':
 			wordsList=createTokens.createTokens(collection_100)
 			words_dict=collections.Counter(wordsList)
 			del collection_100
+			
 			writeFile("coll100WordList.txt",wordsList)
 			writeFileDict("coll100WordDict.txt",words_dict)
 			
@@ -160,6 +146,7 @@ if __name__=='__main__':
 			del contentList
 			print "Relaxing a sec..............."
 			time.sleep(1)
+			
 		else:
 			print "read results.txt for calculating Heaps' Law"
 			findHeapsLaw("results.txt")

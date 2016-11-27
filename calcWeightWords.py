@@ -1,11 +1,12 @@
 #!/usr/bin/python
 # -*- coding:utf-8-**
-
 	
 import nltk
 import string
+import math
 from nltk import word_tokenize
 from nltk import text
+import collections
 from nltk.corpus import stopwords
 from nltk.stem.porter import *
 import codecs
@@ -14,82 +15,22 @@ import createTokens
 import time
 
 
-"""for w in word:
-			if w in punctuation:
-				print True
-			else:
-				print False"""
+"""using class TextCollection and tf, idf, tf_idf methods"""
+
 
 stop_words=set(stopwords.words('english'))
 
 """ !"#$%&'()*+,-./:;<=>?@[\]^_`{|}~ """
 
-
-def removeUseless(line):
-	
-	print "line before x number:", lineinfo
-	word=line.split('\\x')
-	
-	
-def stopWordsRemoval(line,wordList):
-	
-	for w in word_tokenize(line):
-				
-		if w.lower() in stop_words:
-			continue
-		elif all(c in __init__.punctuation for c in w):
-			continue
-		elif createTokens.strHasNum(w) or w.isdigit():
-			continue
-		elif any(c in __init__.punctuation for c in w):
-			word=list(w.lower())
-			temp=word
-			for c in temp:
-				if c in __init__.punctuation:
-					word.remove(c)
-
-			if len(word)>0:	
-				wordList.append(''.join(word))
-		else:
-			wordList.append(w.lower())
-	
-	return wordList
-
+"""create a list of dictionaries containing the tf's for each word in 
+each document. consider that the document is each new paragraph in file 
+ending by @"""
 
 def createStemmed(fname,stemmer):
 	
-	
-	word_list=createTokens.createTokensFromFile(fname)
-	
-	"""fh=codecs.open(fname,"r","latin-1")
-	lines=fh.readlines()
-	for line in lines:
-		
-		if line.startswith("<http"):
-			line=line.split('>')
-			line=line[len(line)-1].split('@en')[0]
-		
-			print line
-			if line.find('http')!=-1 or line.find('www')!=-1 or line.find('https')!=-1:
-				line=createTokens.removeUrl(line)
-			
-			word_list=createTokens.tokenizeFile(line,word_list)
-			words=[w.lower() for w in word_list if w.lower() not in stop_words ]
-			
-			word_list=stopWordsRemoval(line,word_list)
-	
-		else:
 
-			if line.find('http')!=-1 or line.find('www')!=-1 or line.find('https')!=-1:
-				line=createTokens.removeUrl(line)
-				
-			word_list=createTokens.tokenizeFile(line,word_list)
-			words=[w.lower() for w in word_list if w.lower() not in stop_words ]
-			word_list=stopWordsRemoval(line,word_list)
+	word_list=createTokens.createTokensFromFile(fname)
 			
-	del lines
-	fh.close()"""
-	
 	words=[w for w in word_list if w not in stop_words ]
 	
 	stemmed=[]
@@ -98,119 +39,204 @@ def createStemmed(fname,stemmer):
 	
 	return stemmed
 	
-	"""return word_list"""
+def createFiles(tf_list,idf_words,tfidf_dict,filename):
 	
+	fname="tf_dict_"+filename
+	
+	fh=codecs.open(fname,"w","latin-1")
+	fh.write("write the tf dictionary\n")
+	if type(tf_list) is list:
+		for t in tf_list:
+			for key,val in t.items():
+				fh.write(key+":"+str(val) +"\n")
+	else:
+		for key,val in tf_list.items():
+				fh.write(key+":"+str(val)+"\n")
+	
+	fh.close()
+	
+	fname="idf_dict_"+filename
+	fh=codecs.open(fname,"w","latin-1")
+	fh.write("\n")
+	fh.write("write the idf dictionary. This contains words from three files\n")
+	if idf_words is not None:
+		for key,val in idf_words.items():
+			fh.write(key+":"+str(val)+"\n")
+	
+	fh.close()
+	
+	fname="tfidf_dict_"+filename
+	fh=codecs.open(fname,"w","latin-1")
+	fh.write("\n")
+	fh.write("write the tf-idf dictionary for file. \n")
+	if type(tfidf_dict) is list:
+		for t in tfidf_dict:
+			for key,val in t.items():
+				fh.write(key+":"+str(val) +"\n")
+	else:
+		for key,val in tfidf_dict.items():
+			fh.write(key+":"+str(val) +"\n")
 			
-def stem_words(word_list,stemmer):
-	
-	stemmed=[]
-	for item in word_list:
-		stemmed.append(stemmer.stem(item))
-	
-	return stemmed
+	fh.close()
 
-if __name__ == '__main__':
+def createFiles1(tf_list,idf_words,filename):
+	
+	fname="tfidf_dict_"+filename
+	
+	fh=codecs.open(fname,"w","latin-1")
+	fh.write("write the tfidf, tf and idf values in dictionary\n")
+	for val,key in tf_list:
+		print key,val
+		fh.write(key+"\t"+str(val[0])+"\t"+str(val[1])+"\t")
+		fh.write(str(idf_words[key])+"\n")
+	
+	fh.close()
+	
+	
+def createMostImportantFile(tfidf_dict,fname):
+	
+	importantFile="mostImportant_"+fname
+	fh=codecs.open(importantFile,"w","latin-1")
+	fh.write("Printing for each term the tf-idf value\n")
+	
+	for val,key in tfidf_dict:
+		fh.write(key + "\t" + str(val) +"\n")
 
+	fh.close()
+
+
+def mostImportant(tfidf_dict):
+	
+	tfidf_dictList=[]
+	
+	if type(tfidf_dict) is list:
+		for t in tfidf_dict:
+			for key,val in t.items():
+				tfidf_dictList.append((val,key))
+						
+	else:
+					
+		tfidf_dictList=[(val,key) for key,val in tfidf_dict.items()]
+		
+	tfidf_dictList=sorted(tfidf_dictList,reverse=True)
+	
+	return tfidf_dictList
+
+
+
+
+"""if __name__ == '__main__':"""
+
+
+def weightFunction():
+
+	
 	stemmer=PorterStemmer()
-
+	counter=0
 	while True:
-		fname=raw_input("Give filename, or 0: ")
+		print "Give file names for processing, or press 0 or enter:\n"
+		fname=raw_input("Give first file:")
 		
-		if fname=='0':
+		if fname=='0' or fname=='':
 			break
-				
-		if fname!='0':
+	
+		if fname=='darwin.txt':
 			fname1=fname
-			text1=createStemmed(fname,stemmer)
-		else:
-			continue
-		time.sleep(0.5)
-		
-		fname=raw_input("Give filename, or 0: ")
-		if fname!='0':
-			fname2=fname
-			text2=createStemmed(fname,stemmer)
-		else:
-			continue
-		time.sleep(0.5)
-		
-		fname=raw_input("Give filename, or 0: ")
-		if fname!='0':
-			fname3=fname
-			text3=createStemmed(fname,stemmer)
-		else:
-			continue
-		time.sleep(0.5)
+			stem_words=createStemmed(fname,stemmer)
+			"""tf_list_fname1=createTokens.tf_word(stem_words)"""
 			
-		print "making text collection...................."
-		collection=nltk.text.TextCollection([text1,text2,text3])
 		
-		print "making tf-idf for each word in ",fname1
-		tfidf_text1={word:collection.tf_idf(word,text1) for word in text1}
-		print "relaxing......................"
-		time.sleep(1)
+		if fname=='wikipedia.txt':
+			fname2=fname
+			wordsList_wiki=createTokens.createContentList(fname)
+			"""tf_list_fname2=createTokens.createTokens(wordsList_wiki,True)"""
+			stemmed_wiki=createStemmed(fname,stemmer)
+			
+			
+		if fname=='tweets.txt':
+			fname3=fname
+			wordsList_tweets=createTokens.createContentList(fname)
+			"""tf_list_fname3=createTokens.createTokens(wordsList_tweets,True)"""
+			stemmed_tweets=createStemmed(fname,stemmer)
+					
+	print "sleeping 3 secs"	
+	time.sleep(3)
+	print "end sleeping"	
 		
-		print "making tf-idf for each word in ",fname2
-		tfidf_text2={word:collection.tf_idf(word,text2) for word in text2}
-		print "relaxing......................"
-		time.sleep(1)
-		
-		print "making tf-idf for each word in ",fname3
-		tfidf_text3={word:collection.tf_idf(word,text3) for word in text3}
-		print "relaxing......................"
-		time.sleep(1)
-		
-		del text3,text2,text1,collection
-		print "relaxing......................"
-		time.sleep(1)
-		
-		tfidf_text1Reverse=[]
-		for key,val in tfidf_text1.items():
-			tfidf_text1Reverse.append((val,key))
-		
-		print "sorting the word weighted list................."
-		tfidf_text1Reverse.sort(reverse=True)
-		
-		print "printing the most 10 important words......................."
-		for val,key in tfidf_text1Reverse[:10]:
-			print key,val
-		
-		
-		
-		"""freq1=nltk.FreqDist(text1)
-		freq2=nltk.FreqDist(text2)
-		freq3=nltk.FreqDist(text3)
-				
-		print "creating word list........................." """
-		
-		"""words=createWordsList(fname)"""
-		
-		print "creating word list after stemming..................."
-		
-		"""for word, count in freq1.iteritems():
-			print word,count
-		
-		time.sleep(0.2)
-		
-		for word, count in freq2.iteritems():
-			print word,count
-		
-		time.sleep(0.2)
-		
-		for word, count in freq3.iteritems():
-			print word,count"""
-				
-		"""stemmed=stem_words(words,stemmer)"""
-		"""stemmed=stem_words(words,stemmer)"""
+	collection=stem_words+stemmed_tweets+stemmed_wiki
+	collection_length=len(wordsList_tweets)+len(wordsList_wiki)+1
+	
+	print "length of stem collection:", len(collection)
+	print "length of each stemmed file wiki,tweets,darwin:",len(stemmed_wiki),len(stemmed_tweets),len(stem_words)
 
-		
-		"""fh=codecs.open("weightFile.txt","w","latin-1")
-		print "creating file ............................."
-		
-		for w in stemmed:
-			fh.write(w)
-			fh.write("\n")
-				
-		fh.close()
-		
-		print words"""
+	time.sleep(2)
+	print "making idf for each term............."
+	idf_words=createTokens.idf_word(collection,collection_length)
+	del stemmed_tweets,stemmed_wiki,collection
+	
+	
+	print "making tf and tfidf list for ",fname1
+	filedarwin="tokensInDocs_"+fname1
+	fd=codecs.open(filedarwin,"w","latin-1")
+	tf_list_fname1=createTokens.tf_idf_word(stem_words,idf_words,fd)
+	fd.close()
+	
+	tfidfListR=mostImportant(tf_list_fname1)
+	
+	"""tfidfListR=[(val,key) for key,val in tf_list_fname1.items()]"""
+	del tf_list_fname1,stem_words
+	
+	"""tfidfListR=sorted(tfidfListR,reverse=True)"""
+	print "printing the 10 and 100 most important words in ", fname1
+	print tfidfListR[:10]
+	time.sleep(1)
+	print tfidfListR[:100]
+	time.sleep(1)
+	createFiles1(tfidfListR,idf_words,fname1)
+	
+	print "making tf and tfidf list for ",fname2
+	tf_list_fname2=createTokens.createTokens(wordsList_wiki,idf_words,fname2,True)
+	del wordsList_wiki,tfidfListR
+	
+	print "make list in descending order for ",fname2
+	tfidfListR=mostImportant(tf_list_fname2)
+	
+	"""tfidfListR=[]
+	for tf in tf_list_fname2:
+		for key,val in tf.items():
+			tfidfListR.append((val,key))"""
+	
+	del tf_list_fname2
+
+	print "printing the 10 and 100 most important words in ", fname2
+	"""tfidfListR=sorted(tfidfListR,reverse=True)"""
+	print tfidfListR[:10]
+	print tfidfListR[:100]
+	createFiles1(tfidfListR,idf_words,fname2)
+	
+	del tfidfListR
+	
+	print "making tf and tfidf list for ",fname3
+	tf_list_fname3=createTokens.createTokens(wordsList_tweets,idf_words,fname3,True)
+	del wordsList_tweets
+	
+	print "make list in descending order for ",fname3
+	tfidfListR=mostImportant(tf_list_fname3)
+	
+	
+	"""tfidfListR=[]
+	for tf in tf_list_fname3:
+		for key,val in tf.items():
+			tfidfListR.append((val,key))"""
+	
+	del tf_list_fname3
+
+	print "printing the 10 and 100 most important words in ", fname3
+	"""tfidfListR=sorted(tfidfListR,reverse=True)"""
+	print tfidfListR[:10]
+	print tfidfListR[:100]
+	createFiles1(tfidfListR,idf_words,fname3)
+	
+	del tfidfListR,idf_words
+			
+	

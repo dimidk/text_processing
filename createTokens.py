@@ -1,20 +1,29 @@
 #!/usr/bin/python
 # -*- coding: utf-8-*-
 
-"""do stemming 'cause have strings meaningless, so create first lists, and then dictionaries
-using first default encoding utf-8 and then encoding latin-1 """
 
 import nltk
-from nltk.corpus import stopwords
-from nltk.tokenize import word_tokenize,sent_tokenize
+"""from nltk.corpus import stopwords"""
+from nltk.tokenize import word_tokenize
 import __init__
 import codecs
+import collections
 import time
+import math
+from nltk.stem.porter import *
+import unicodedata
 
+stemmer=PorterStemmer()
 
 def strHasNum(myLine):
 	return any(c.isdigit() for c in myLine)
-	
+
+
+
+def strip_accents(s):
+   return ''.join(c for c in unicodedata.normalize('NFD', s)
+                  if unicodedata.category(c) != 'Mn')
+
 def removeUrl(line):
 	
 	word=line.split()
@@ -24,6 +33,7 @@ def removeUrl(line):
 			word.remove(w)
 				
 	return ' '.join(word)
+
 
 def createContentList(fname):
 
@@ -36,7 +46,8 @@ def createContentList(fname):
 		if line.startswith("<http"):
 			line=line.split('>')
 			line=line[len(line)-1].split('@en')[0]
-
+			line=removeUrl(line)	
+			
 			contents.append(line)
 			wh.write(line+"\n")
 						
@@ -65,17 +76,19 @@ def tokenizeFile(line,wordsList):
 			elif any(c in __init__.punctuation for c in w):
 
 				word=list(w.lower())
-				temp=word
-									
-				for c in temp:
-					if c in __init__.punctuation:
-						word.remove(c)				
-				if len(word)>0:	
+				word=[c for c in word if c not in __init__.punctuation]
+			
+				if len(word)>2:	
+					"""print "word to add:",word"""
 					wordsList.append(''.join(word))
 			else:
-				wordsList.append(w.lower())
+				"""print "word to add without punctuation:",w.lower()"""
+				w=strip_accents(w)
+				if len(w)>2:
+					wordsList.append(w.lower())
 				
 	return wordsList
+
 	
 def createTokensFromFile(fname):
 
@@ -107,46 +120,124 @@ def createTokensFromFile(fname):
 	fh.close()
 	return words
 
+
+def tf_word(wordsList):
 	
-def createTokens(contents):
+	tf_dict={}
+	tempc=collections.Counter(wordsList)
+	for key,val in tempc.items():
+		tf_dict[key]=round(float(val)/float(len(wordsList)),8)
+				
+	return tf_dict
+
+
+def tf_idf_word(wordsList,idf_words,fd):
+	
+	tf_idf_dict={}
+
+	tempc=collections.Counter(wordsList)
+	for key,val in tempc.items():
+		tf=round(float(val)/float(len(wordsList)),6)
+		idf_val=idf_words[key]
+		tfidf=round(tf*idf_val,6)
+		tf_idf_dict[key]=(tfidf,tf)
+		fd.write(key+":"+str(tfidf)+" "+str(idf_val)+"\n")
+	
+	return tf_idf_dict
+
+
+def idf_word(collection,collection_length):
+	
+	idf_stemmed=collections.Counter(collection)
+	print "length of idf collection meaning unique words:",len(idf_stemmed)
+	
+	
+	idf_words={}
+	for key,val in idf_stemmed.items():
+		idf_words[key]=round(math.log10(float(collection_length)/float(val)),8)
+	
+	print "printing idf values for terms......................"
+	"""time.sleep(2)
+	print "printing key, frequency, idf value...."
+	for key,val in idf_stemmed.items():
+		print key,":",val, " ",idf_words[key]
+		time.sleep(0.5)"""
+	
+	return idf_words
+
+
+def tfidf_word(tf_list,idf_words,listBoolean):
+	
+	tfidf_dict={}
+	tfidf_dictList=[]
+	
+	if listBoolean:
+		for tf in tf_list:
+			for key,val in tf.items():
+				"""if idf_words.has_key(key):"""
+				tfidf_dict[key]=round(val*idf_words[key],8)
+				"""else:
+					tfidf_dict[key]=0*idf_words[key]"""
+					
+			tfidf_dictList.append(tfidf_dict)
+		
+		return tfidf_dictList
+			
+	else:
+		for key,val in idf_words.items():
+			if tf_list.has_key(key):
+				tfidf_dict[key]=round(val*tf_list[key],8)
+				
+		return tfidf_dict
+
+
+def stem_words(wordsList):
+	
+	stemmed=[]
+	for item in wordsList:
+		stemmed.append(stemmer.stem(item))
+	
+	return stemmed
+
+	
+	
+def createTokens(contents,idf_words,filename,tf_true):
 	
 	words=[]
 	i=0
-
-	while i<len(contents):		
-		line=contents[i]		
-		words=tokenizeFile(line,words)
-						
-		i+=1
-
-	return words
-
-
-"""def createDict(fname,words):
-
-	if words==None:
-		words=createTokensFromFile(fname)
-
-	words.sort()
-	words_dict={}
-	
-	prcFile=open(fname+'.prc','w')
-
-	for key in words:
-		words_dict[key]=words_dict.get(key,0)+1
-
-	for key,val in words_dict.items():
-		print key,val
-		prcFile.write(key.encode('utf-8')+' ')
-		prcFile.write(str(val).encode('utf-8')+'\n')
+	fname="tokensInDocs_"+filename
+	fh=codecs.open(fname,"w","latin-1")
+	if tf_true:
 		
-	prcFile.close()
-
-	return len(words)"""
+		while i<len(contents):		
+			line=contents[i]		
+	
+			words_line=[]
+			words_line=tokenizeFile(line,words_line)
+			words_nostop=[w for w in words_line if w not in __init__.stop_words]
+			words_line=stem_words(words_nostop)
+			fh.write(str(i)+ " line in content"+"\t")
+			"""print "length line:",len(words_line)
+			time.sleep(0.2)"""
+			words.append(tf_idf_word(words_line,idf_words,fh))
+			
+			i+=1
+		
+	else:
+		while i<len(contents):		
+			line=contents[i]		
+			words=tokenizeFile(line,words)
+						
+			i+=1
+	
+	fh.close()
+	return words
 
 
 
 if __name__== '__main__':
 	
 	filename=raw_input("Give file name: ")
-	createFileTokens(filename)
+	words_last=createTokensFromFile(filename)
+	
+	print words_last
