@@ -121,17 +121,10 @@ def createTokensFromFile(fname):
 	return words
 
 
-def tf_word(wordsList):
+
+def tf_idf_word(wordsList,idf_words):
 	
-	tf_dict={}
-	tempc=collections.Counter(wordsList)
-	for key,val in tempc.items():
-		tf_dict[key]=round(float(val)/float(len(wordsList)),8)
-				
-	return tf_dict
-
-
-def tf_idf_word(wordsList,idf_words,fd):
+	"""make tuple witf tfidf, tf values"""
 	
 	tf_idf_dict={}
 
@@ -141,7 +134,6 @@ def tf_idf_word(wordsList,idf_words,fd):
 		idf_val=idf_words[key]
 		tfidf=round(tf*idf_val,6)
 		tf_idf_dict[key]=(tfidf,tf)
-		fd.write(key+":"+str(tfidf)+" "+str(idf_val)+"\n")
 	
 	return tf_idf_dict
 
@@ -156,39 +148,8 @@ def idf_word(collection,collection_length):
 	for key,val in idf_stemmed.items():
 		idf_words[key]=round(math.log10(float(collection_length)/float(val)),8)
 	
-	print "printing idf values for terms......................"
-	"""time.sleep(2)
-	print "printing key, frequency, idf value...."
-	for key,val in idf_stemmed.items():
-		print key,":",val, " ",idf_words[key]
-		time.sleep(0.5)"""
-	
+	print "printing idf values for terms......................"	
 	return idf_words
-
-
-def tfidf_word(tf_list,idf_words,listBoolean):
-	
-	tfidf_dict={}
-	tfidf_dictList=[]
-	
-	if listBoolean:
-		for tf in tf_list:
-			for key,val in tf.items():
-				"""if idf_words.has_key(key):"""
-				tfidf_dict[key]=round(val*idf_words[key],8)
-				"""else:
-					tfidf_dict[key]=0*idf_words[key]"""
-					
-			tfidf_dictList.append(tfidf_dict)
-		
-		return tfidf_dictList
-			
-	else:
-		for key,val in idf_words.items():
-			if tf_list.has_key(key):
-				tfidf_dict[key]=round(val*tf_list[key],8)
-				
-		return tfidf_dict
 
 
 def stem_words(wordsList):
@@ -199,14 +160,25 @@ def stem_words(wordsList):
 	
 	return stemmed
 
+
+def createTokens(contents):
 	
+	words=[]
+	i=0
+	while i<len(contents):		
+		line=contents[i]		
+		words=tokenizeFile(line,words)
+						
+		i+=1
+	
+	return words
+
 	
 def createTokens(contents,idf_words,filename,tf_true):
 	
 	words=[]
 	i=0
-	fname="tokensInDocs_"+filename
-	fh=codecs.open(fname,"w","latin-1")
+	
 	if tf_true:
 		
 		while i<len(contents):		
@@ -216,10 +188,8 @@ def createTokens(contents,idf_words,filename,tf_true):
 			words_line=tokenizeFile(line,words_line)
 			words_nostop=[w for w in words_line if w not in __init__.stop_words]
 			words_line=stem_words(words_nostop)
-			fh.write(str(i)+ " line in content"+"\t")
-			"""print "length line:",len(words_line)
-			time.sleep(0.2)"""
-			words.append(tf_idf_word(words_line,idf_words,fh))
+
+			words.append(tf_idf_word(words_line,idf_words))
 			
 			i+=1
 		
@@ -230,7 +200,7 @@ def createTokens(contents,idf_words,filename,tf_true):
 						
 			i+=1
 	
-	fh.close()
+	
 	return words
 
 

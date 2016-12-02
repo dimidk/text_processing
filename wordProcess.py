@@ -10,6 +10,7 @@ import createTokens
 import createCollect
 import calcWeightWords
 import codecs
+import testDiagram
 
 
 def mostCommonFiles(word_dict,filename):
@@ -20,7 +21,7 @@ def mostCommonFiles(word_dict,filename):
 	
 	words=[(val,key) for key,val in word_dict.items()]
 	words=sorted(words,reverse=True)
-	"""for w in words:"""
+
 	for val,key in words:
 		fh.write(key+":"+str(val)+"\n")
 			
@@ -30,9 +31,6 @@ def mostCommonFiles(word_dict,filename):
 
 if __name__ == '__main__':
 	
-
-	
-
 	while True:
 		print "1. Συχνότερα λεκτικά σύμβολα."
 		print "2. Νόμος του Heap"
@@ -43,7 +41,12 @@ if __name__ == '__main__':
 			break
 		if epilogi==1:
 			while True:
-				fname=raw_input("File name is, otherwise press enter: ")
+				fname=raw_input("File name process to find common words is, otherwise press enter: ")
+				try:
+					fh=codecs.open(fname,"r",encoding='utf-8')
+				except IOError as e:
+					print "I/O ({0}):{1}".format(e.errno,e.strerror)
+					break
 				if fname=='' or fname==' ':
 					break
 				else:
@@ -58,17 +61,20 @@ if __name__ == '__main__':
 					
 					mostCommonFiles(collection,fname)
 					
-					print "printing most 100 common words............"
-					for key,val in common100:
-						print key,val
-					
-					print "printing most 500 common words............"
-					for key,val in common500:
-						print key,val
-					
-					print "printing most 1000 common words............"
-					for key,val in common1000:
-						print key,val
+					while True:
+						print "Show most common words in file and diagram. Show 100 most common, or 500 or 1000 most common"
+						num=input("Give maximun of words number:")
+						if num==100:
+							print "printing diagram with 100 most common..."
+							testDiagram.plotCommonWords(fname,num)	
+						elif num==500:
+							print "printing diagram with 500 most common..."
+							testDiagram.plotCommonWords(fname,num)
+						elif num==1000:
+							print "printing diagram with 1000 most common..."
+							testDiagram.plotCommonWords(fname,num)
+						else:
+							break
 					
 					del wordsList,collection,common100,common1000,common500
 					

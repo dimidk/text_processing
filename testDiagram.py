@@ -3,17 +3,57 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-"""t = np.arange(1, 1000, 1)
-s = np.sin(2*np.pi*t)
-plt.plot(t, s)
+def plotCommonWords(fname,number):
+	
+	filename="commonFile_"+fname
+	
+	with open(filename,"r") as fh:
+		line=fh.read()
+	data=line.split('\n')
+	y=[]
+	x=[]
+	counter=1
+	for d in data:
+		num=d.split(':')
+		x.append(counter)
+		y.append(int(num[1]))
+		counter+=1
+		if counter==number:
+			break
+	
+	plt.plot(x,y)
+	plt.title("Frequency Diagram")
+	plt.xlabel('Word Rank')
+	plt.ylabel('Word Frequency')
+	plt.show()
+			
 
-plt.xlabel('term''s'' rank')
-plt.ylabel('frequency (10)')
-plt.title('a diagram for frequency of a term')
-plt.grid(True)
-plt.savefig("test.png")
-plt.show()"""
-x=[x for x in range(1,100)]
-y=[y for y in range(100,10000,100)]
-plt.plot(x,y)
-plt.show()
+def plotHeapDiagram(fname):
+	
+	y=[]
+	x=[]
+	
+	with open(fname,"r") as fh:
+		lines=fh.readlines()
+		
+	for line in lines:
+		if line.startswith('File') or line.startswith('Number'):
+			continue
+		line=line.split('\t')
+		x.append(int(line[1]))
+		y.append(int(line[0]))
+	
+	x.pop(len(x)-1)
+	y.pop(len(x)-1)				
+	plt.plot(x,y)
+	plt.title("Heaps Diagram")
+	plt.xlabel('Word List in Document	')
+	plt.ylabel('Unique Word in Dictionary')
+	plt.show()
+	
+if __name__== '__main__':
+
+	
+	"""plotCommonWords(fname,number)"""
+	plotHeapDiagram("results.txt")
+	
