@@ -37,11 +37,12 @@ def findHeapsLaw(resultsName):
 
 		"""v=k*n**b"""
 		
-		b=random.random()
+		"""b=random.random()"""
+		b=random.uniform(0.4,0.6)
 		print "random b: ",b
 		k=v/math.pow(n,b)
 		print "for v", v , " have a K:",k, " for a n**b:",math.pow(n,b)," and a b:",b," \n"
-		
+		2
 	fh.close()
 
 
