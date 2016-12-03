@@ -130,7 +130,7 @@ def menuCollection():
 				"""print "relaxing.............."
 				time.sleep(0.5)"""
 
-			collection_100=make_Collection(contentList,100000)
+			collection_100=make_Collection(contentList,15000)
 			writeFile("coll100.txt",collection_100)
 			wordsList=[]
 			

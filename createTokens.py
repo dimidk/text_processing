@@ -39,6 +39,7 @@ def createContentList(fname):
 
 	contents=[]	
 	fh=codecs.open(fname,"r","latin-1")
+	"""fh=codecs.open(fname,"r",encoding='utf-8')"""
 	wh=codecs.open("contentfile.txt","w","latin-1")
 	line=fh.readline()
 	while True:
@@ -79,10 +80,8 @@ def tokenizeFile(line,wordsList):
 				word=[c for c in word if c not in __init__.punctuation]
 			
 				if len(word)>2:	
-					"""print "word to add:",word"""
 					wordsList.append(''.join(word))
 			else:
-				"""print "word to add without punctuation:",w.lower()"""
 				w=strip_accents(w)
 				if len(w)>2:
 					wordsList.append(w.lower())

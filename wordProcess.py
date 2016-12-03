@@ -13,22 +13,6 @@ import codecs
 import testDiagram
 
 
-"""def findFile():
-	
-	tweetsFile=__init__.commonFilename+"tweets.txt"
-	wikiFile=__init__.commonFilename+"wikipedia.txt"
-	darwinFile=__init__.commonFilename+"darwin.txt"
-	
-	if os.path.isfile(tweetsFile):
-		return tweetsFile
-	elif os.path.isfile(wikiFile):
-		return wikiFile
-	elif os.path.isfile(darwinFile):
-		return darwinFile
-	else:
-		return -1"""
-	
-
 
 def mostCommonFiles(word_dict,filename):
 
@@ -69,19 +53,14 @@ def menuInFrequency():
 				wordsList=createTokens.createTokensFromFile(fname)					
 				collection=collections.Counter(wordsList)
 				print "in a word list of : ",len(wordsList) ," we have a word dictionary of a:",len(collection)," words"
-					
-				"""common100=collection.most_common(100)
-				common500=collection.most_common(500)
-				common1000=collection.most_common(1000)"""
-						
+							
 				mostCommonFiles(collection,fname)
 			
 				del wordsList,collection
 			
 		elif epilogi==2:
 			while True:
-				"""fname=raw_input("Δώσε το όνομα του αρχείου για την εκτύπωση του διαγράμματος:")"""
-											
+										
 				num=input("Δώσε τον αριθμό των πιο συχνών λέξεων, διαφορετικά δώσε 0 :")
 				filenum=__init__.findFile()
 				if filenum[0]=='0' and filenum[1]=='0' and filenum[2]=='0':
@@ -97,8 +76,6 @@ def menuInFrequency():
 					fname=raw_input()
 					fname=__init__.commonFilename+fname
 					
-				print "filenum is:", filenum
-				print "you gave filename:",fname
 				if num==0:
 					break
 				if num==100:
@@ -115,9 +92,7 @@ def menuInFrequency():
 		else:
 			break
 		
-		"""del wordsList,collection,common100,common1000,common500"""
-	
-
+		
 if __name__ == '__main__':
 	
 	while True:
