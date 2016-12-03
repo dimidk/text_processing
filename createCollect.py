@@ -11,6 +11,7 @@ import collections
 import createTokens
 import testDiagram
 import math
+import os.path
 import time
 
 
@@ -25,6 +26,7 @@ def findHeapsLaw(resultsName):
 	
 	fh=codecs.open(resultsName,"r")
 	lines=fh.readlines()
+	sumb=0
 	for line in lines:
 		numbers=line.split('\t')
 		if not numbers[0].isdigit():
@@ -41,8 +43,10 @@ def findHeapsLaw(resultsName):
 		b=random.uniform(0.4,0.6)
 		print "random b: ",b
 		k=v/math.pow(n,b)
+		sumb=sumb+b
 		print "for v", v , " have a K:",k, " for a n**b:",math.pow(n,b)," and a b:",b," \n"
-		2
+	
+	print round(sumb/100,2)
 	fh.close()
 
 
@@ -73,12 +77,15 @@ def menuCollection():
 		print "2. calculate V=Kn**b"
 		print "0. exit"
 
+		
 		num=input()
 		if num==1:
-			fh=open("results.txt","w")
+			
 			fname=raw_input("give file name, otherwise 0:")
 			if fname=='0':
 				continue
+			resultFile="results_"+fname
+			fh=open(resultFile,"w")
 			print "making contentList of file................................"
 			contentList=createTokens.createContentList(fname)	
 			
@@ -144,9 +151,27 @@ def menuCollection():
 	
 		else:
 			print "read results.txt for calculating Heaps' Law"
-			findHeapsLaw("results.txt")
-			testDiagram.plotHeapDiagram("results.txt")
+			heapFileTweets=__init__.resultFile+"tweets.txt"
+			heapFileWiki=__init__.resultFile+"wikipedia.txt"
 			
+			if os.path.isfile(heapFileTweets) and not os.path.isfile(heapFileWiki):
+				findHeapsLaw(heapFileTweets)
+				testDiagram.plotHeapDiagram(heapFileTweets)
+			elif not os.path.isfile(heapFileTweets) and os.path.isfile(heapFileWiki):
+				findHeapsLaw(heapFileWiki)
+				testDiagram.plotHeapDiagram(heapFileWiki)
+			else:
+				
+				c=raw_input("Heap Diagram for Tweets or Wikipedia file. \nChoose T for Tweets and W for Wikipedia:")
+				if c=='T':
+					findHeapsLaw(heapFileTweets)
+					testDiagram.plotHeapDiagram(heapFileTweets)
+				elif c=='W':
+					findHeapsLaw(heapFileWiki)
+					testDiagram.plotHeapDiagram(heapFileWiki)
+				else:
+					print "There is no file relative to Heaps' calculation"
+				
 		if num==0:
 			break
 	"""v v=K*n**b"""
