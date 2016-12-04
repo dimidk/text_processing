@@ -53,22 +53,24 @@ def plotHeapDiagram(fname):
 			y_20.append(int(line[0]))
 		lineNum+=1
 		
-	x.pop(len(x)-1)
+	"""x1=x[len(x)-1]
+	y1=y[len(y)-1]
+	x.pop(len(y)-1)
 	y.pop(len(y)-1)
-	x=x+x_20
-	y=y+y_20
+	x_20.append(x1)
+	y_20.append(y1)"""
 		
-	plt.plot(x,y,label='10collection')
-	plt.plot(x_20,y_20,marker='.',linestyle='--',color='red',label='20 collection')
+	plt.plot(x,y,marker='o',color='green',label='10collection')
+	"""plt.plot(x_20,y_20,marker='.',linestyle='--',color='red',label='20 collection')"""
 	plt.title("Heaps Diagram")
 	plt.xlabel('Word List in Document	')
 	plt.ylabel('Unique Word in Dictionary')
 	plt.show()
 	
-	"""plt.plot(x_20,y_20)
+	plt.plot(x_20,y_20,marker='.',linestyle='--',color='red',label='20 collection')
 	plt.title("Heaps Diagram")
 	plt.xlabel('Word List in Document	')
-	plt.ylabel('Unique Word in Dictionary')"""
+	plt.ylabel('Unique Word in Dictionary')
 	plt.show()
 	
 if __name__== '__main__':

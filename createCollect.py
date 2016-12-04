@@ -26,7 +26,10 @@ def findHeapsLaw(resultsName):
 	
 	fh=codecs.open(resultsName,"r")
 	lines=fh.readlines()
+	sumn=0
+	sumv=0
 	sumb=0
+	sumk=0
 	for line in lines:
 		numbers=line.split('\t')
 		if not numbers[0].isdigit():
@@ -35,7 +38,9 @@ def findHeapsLaw(resultsName):
 		numbers=line.split('\t')
 		print numbers
 		v=float(numbers[0])
+		sumv=sumv+v
 		n=float(numbers[1])
+		sumn=sumn+n
 
 		"""v=k*n**b"""
 		
@@ -43,10 +48,15 @@ def findHeapsLaw(resultsName):
 		b=random.uniform(0.4,0.6)
 		print "random b: ",b
 		k=v/math.pow(n,b)
+		sumk=sumk+k
 		sumb=sumb+b
 		print "for v", v , " have a K:",k, " for a n**b:",math.pow(n,b)," and a b:",b," \n"
 	
-	print round(sumb/100,2)
+	print "Ο Μέσος όρος της σταθεράς b είναι:",round(sumb/100,2)
+	print "Ο Μέσος όρος της σταθεράς K είναι:",round(sumk/100,2)
+	print "Ο Μέσος όρος του μεγέθους του λεξικού V είναι:",round(sumv/100,2)
+	print "Ο Μέσος όρος του μεγέθους της συλλογής λέξεων N είναι:",round(sumn/100,2)
+	
 	fh.close()
 
 
@@ -57,6 +67,40 @@ def writeFile(Filename,contentList):
 		fh.write(w +'\n')		
 	
 	fh.close()
+
+def createCollection_100(contentList,fname,idf_words):
+	
+	if fname=="wikipedia.txt":
+		
+		collection_100=make_Collection(contentList,3000)
+		
+		writeFile("coll100.txt",collection_100)
+		wordsList=[]
+			
+		wordsList=createTokens.createTokens(collection_100,idf_words,fname,False)
+		words_dict=collections.Counter(wordsList)
+		del collection_100
+			
+		writeFile("coll100WordList.txt",wordsList)
+		writeFileDict("coll100WordDict.txt",words_dict)
+			
+		print len(words_dict), " and number of words: ", len(wordsList)
+		
+	else:
+		collection_100=make_Collection(contentList,13500)
+		
+		writeFile("coll100.txt",collection_100)
+		wordsList=[]
+			
+		wordsList=createTokens.createTokens(collection_100,idf_words,fname,False)
+		words_dict=collections.Counter(wordsList)
+		del collection_100
+			
+		writeFile("coll100WordList.txt",wordsList)
+		writeFileDict("coll100WordDict.txt",words_dict)
+			
+		print len(words_dict), " and number of words: ", len(wordsList)
+
 
 
 def writeFileDict(Filename,wordDict):
@@ -130,7 +174,9 @@ def menuCollection():
 				"""print "relaxing.............."
 				time.sleep(0.5)"""
 
-			collection_100=make_Collection(contentList,15000)
+			createCollection_100(contentList,fname,idf_words)
+			
+			"""collection_100=make_Collection(contentList,15000)
 			writeFile("coll100.txt",collection_100)
 			wordsList=[]
 			
@@ -144,7 +190,8 @@ def menuCollection():
 			print len(words_dict), " and number of words: ", len(wordsList)
 			fh.write(str(len(words_dict)) + "\t" + str(len(wordsList)) +"\n")
 			
-			del wordsList,words_dict
+			del wordsList,words_dict"""
+			
 			fh.close()
 			
 			del contentList
