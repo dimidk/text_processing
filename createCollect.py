@@ -1,6 +1,10 @@
 #!/usr/bin/python
 #-*- coding: utf-8-*-
 
+"""# author Dimitra Deka
+# This file includes functions calculating Heaps' law"""
+
+
 from nltk import *
 import nltk.text
 
@@ -72,7 +76,7 @@ def createCollection_100(contentList,fname,idf_words):
 	
 	if fname=="wikipedia.txt":
 		
-		collection_100=make_Collection(contentList,3000)
+		collection_100=make_Collection(contentList,2500)
 		
 		writeFile("coll100.txt",collection_100)
 		wordsList=[]
@@ -175,22 +179,6 @@ def menuCollection():
 				time.sleep(0.5)"""
 
 			createCollection_100(contentList,fname,idf_words)
-			
-			"""collection_100=make_Collection(contentList,15000)
-			writeFile("coll100.txt",collection_100)
-			wordsList=[]
-			
-			wordsList=createTokens.createTokens(collection_100,idf_words,fname,False)
-			words_dict=collections.Counter(wordsList)
-			del collection_100
-			
-			writeFile("coll100WordList.txt",wordsList)
-			writeFileDict("coll100WordDict.txt",words_dict)
-			
-			print len(words_dict), " and number of words: ", len(wordsList)
-			fh.write(str(len(words_dict)) + "\t" + str(len(wordsList)) +"\n")
-			
-			del wordsList,words_dict"""
 			
 			fh.close()
 			
