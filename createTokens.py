@@ -1,6 +1,9 @@
 #!/usr/bin/python
 # -*- coding: utf-8-*-
 
+"""# author Dimitra Deka
+# This file includes functions making content lists 
+# calculating tf, tf-idf values, tokenizing and stemming content"""
 
 import nltk
 """from nltk.corpus import stopwords"""
@@ -39,12 +42,56 @@ def createContentList(fname):
 
 	contents=[]	
 	fh=codecs.open(fname,"r","latin-1")
-	"""fh=codecs.open(fname,"r",encoding='utf-8')"""
-	wh=codecs.open("contentfile.txt","w","latin-1")
-	line=fh.readline()
-	while True:
 
-		if line.startswith("<http"):
+	wh=codecs.open("contentfile.txt","w","latin-1")
+	"""line=fh.read()
+	print line"""
+	tweet=[]
+	while True:
+		char=fh.read(1)
+		print type(char)
+		time.sleep(1)
+
+		if not char:
+			break
+		elif char=='/"':
+			print "read this character"
+			continue
+		else:
+			print "in else"
+			tweet.append(char)
+			char=fh.read(1)
+			while char!='"':
+				tweet.append(char)
+				char=fh.read(1)
+				
+			linetweet=''.join(char)
+			print linetweet
+			
+			line=removeUrl(linetweet)			
+			contents.append(line)
+			wh.write(line+"\n")
+			print line
+			
+		"""if not char:
+			break
+		elif char=='"':
+			continue			
+		else:
+			tweet.append(char)
+			
+			while fh.read(1)!='"':
+				tweet.append(char)
+				
+			linetweet=''.join(char)
+			print linetweet
+			
+			line=removeUrl(linetweet)			
+			contents.append(line)
+			wh.write(line+"\n")
+			print line"""
+			
+		"""if line.startswith("<http"):
 			line=line.split('>')
 			line=line[len(line)-1].split('@en')[0]
 			line=removeUrl(line)	
@@ -57,9 +104,13 @@ def createContentList(fname):
 			line=removeUrl(line)			
 			contents.append(line)
 			wh.write(line+"\n")
+			print line
+			
 		line=fh.readline()
+		print "this is a line in tweets " + line
+		time.sleep(1)
 		if line=='':
-			break
+			break"""
 			
 	fh.close()
 	wh.close()
