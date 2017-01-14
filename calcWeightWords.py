@@ -16,7 +16,7 @@ import time
 
 
 """using class TextCollection and tf, idf, tf_idf methods"""
-
+""" testing github"""
 
 stop_words=set(stopwords.words('english'))
 
